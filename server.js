@@ -1,39 +1,34 @@
-// server.js
 import express from 'express'
 import fetch from 'node-fetch'
-import db from './db.js'
+import db from './src/db.js'
 
 
-// Crear una instancia de Express
 const app = express()
 const PORT = process.env.PORT || 3000
 
 // Middleware para interpretar JSON en las solicitudes
 app.use(express.json())
 
-// 1. Verificar el Webhook de WhatsApp Business
+// Configurar el servidor para servir archivos estáticos desde la carpeta "public"
+app.use(express.static('public'))
+
+// Rutas de la API
 app.get('/receive-whatsapp', (req, res) => {
     const verifyToken = process.env.VERIFY_TOKEN
-
-    // Verificar el token de suscripción del webhook
     const mode = req.query['hub.mode']
     const token = req.query['hub.verify_token']
     const challenge = req.query['hub.challenge']
 
     if (mode === 'subscribe' && token === verifyToken) {
-        console.log('Webhook verified successfully!')
         res.status(200).send(challenge)
     } else {
         res.status(403).send('Verification failed')
     }
 })
 
-// 2. Recibir y almacenar mensajes de WhatsApp
 app.post('/receive-whatsapp', async (req, res) => {
     try {
         const { object, entry } = req.body
-
-        // Verificar que la solicitud proviene de un mensaje de WhatsApp
         if (object === 'whatsapp_business_account') {
             entry.forEach(async (entry) => {
                 const changes = entry.changes
@@ -46,8 +41,6 @@ app.post('/receive-whatsapp', async (req, res) => {
                             const number = message.from
                             const text = message.text?.body || null
                             const urlMedia = message.image?.url || null
-
-                            // Almacenar el mensaje en la base de datos
                             await db.execute(
                                 'INSERT INTO messages (number, message, urlMedia) VALUES (?, ?, ?)',
                                 [number, text, urlMedia]
@@ -66,7 +59,6 @@ app.post('/receive-whatsapp', async (req, res) => {
     }
 })
 
-// 3. Leer mensajes almacenados
 app.get('/get-messages', async (req, res) => {
     try {
         const [messages] = await db.execute('SELECT * FROM messages ORDER BY timestamp DESC')
@@ -77,15 +69,11 @@ app.get('/get-messages', async (req, res) => {
     }
 })
 
-// 4. Enviar una respuesta manual a un mensaje de WhatsApp
 app.post('/send-response', async (req, res) => {
     const { number, response } = req.body
-
     try {
         const accessToken = process.env.ACCESS_TOKEN
         const phoneNumberId = process.env.PHONE_NUMBER_ID
-
-        // URL de la API de WhatsApp para enviar mensajes
         const url = `https://graph.facebook.com/v13.0/${phoneNumberId}/messages`
 
         const payload = {
@@ -94,7 +82,6 @@ app.post('/send-response', async (req, res) => {
             text: { body: response }
         }
 
-        // Enviar la respuesta al usuario
         const apiResponse = await fetch(url, {
             method: 'POST',
             headers: {
