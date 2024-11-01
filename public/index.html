@@ -3,92 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Message Interface</title>
+    <title>WhatsApp-like Chat Interface</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        #messages { margin-top: 20px; max-width: 600px; }
-        .message { padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 5px; }
-        .message p { margin: 5px 0; }
-        form { margin-top: 20px; }
-        label, input, button { display: block; margin: 5px 0; }
-        input, button { padding: 8px; width: 100%; max-width: 300px; }
-        button { cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 5px; }
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            height: 80vh;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Messages Display Area */
+        #messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #e5ddd5;
+        }
+
+        /* Message Bubble Styles */
+        .message {
+            max-width: 70%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            clear: both;
+        }
+
+        .incoming {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        .outgoing {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        /* Footer Input Area */
+        .input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: #f7f7f7;
+        }
+
+        .input-container input[type="text"] {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .input-container button {
+            padding: 8px 16px;
+            background-color: #128c7e;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .input-container button:hover {
+            background-color: #075e54;
+        }
+
     </style>
 </head>
 <body>
-    <h1>WhatsApp Messages</h1>
-    <div id="messages">Loading messages...</div>
 
-    <h2>Send a Response</h2>
-    <form id="responseForm">
-        <label for="number">Phone Number:</label>
-        <input type="text" id="number" placeholder="Enter phone number" required>
-        
-        <label for="response">Response:</label>
-        <input type="text" id="response" placeholder="Enter your response" required>
-        
-        <button type="submit">Send Response</button>
-    </form>
+    <div class="chat-container">
+        <!-- Display area for messages -->
+        <div id="messages">Loading messages...</div>
+
+        <!-- Input area for sending response -->
+        <div class="input-container">
+            <input type="text" id="number" placeholder="Enter phone number" required>
+            <input type="text" id="response" placeholder="Type your message..." required>
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
 
     <script>
-        // Cargar mensajes desde la API y mostrarlos en la interfaz
-        async function loadMessages() {
-            try {
-                const response = await fetch('/get-messages'); // Reemplaza con la URL completa si es necesario
-                const messages = await response.json();
-                const messagesDiv = document.getElementById('messages');
-                
-                messagesDiv.innerHTML = ''; // Limpiar el contenido actual
-                if (messages.length === 0) {
-                    messagesDiv.innerHTML = '<p>No messages available.</p>';
+async function loadMessages() {
+    try {
+        const response = await fetch('/get-messages'); // Ajusta la URL si es necesario
+        const messages = await response.json();
+        const messagesDiv = document.getElementById('messages');
+        
+        messagesDiv.innerHTML = ''; // Limpiar el contenido actual
+        
+        if (messages.length === 0) {
+            messagesDiv.innerHTML = '<p>No messages available.</p>';
+        } else {
+            messages.forEach(msg => {
+                const msgElement = document.createElement('div');
+                msgElement.classList.add('message');
+
+                // Diferenciar mensajes entrantes y salientes usando la columna `direction`
+                if (msg.direction === 'outgoing') {
+                    msgElement.classList.add('outgoing');
+                } else {
+                    msgElement.classList.add('incoming');
                 }
 
-                messages.forEach(msg => {
-                    const msgElement = document.createElement('div');
-                    msgElement.classList.add('message');
-                    
-                    msgElement.innerHTML = `
-                        <p><strong>From:</strong> ${msg.number}</p>
-                        <p><strong>Message:</strong> ${msg.message}</p>
-                        ${msg.urlMedia ? `<p><strong>Media:</strong> <a href="${msg.urlMedia}" target="_blank">View</a></p>` : ''}
-                        <p><small>Received at: ${new Date(msg.timestamp).toLocaleString()}</small></p>
-                    `;
-                    messagesDiv.appendChild(msgElement);
-                });
-            } catch (error) {
-                console.error('Error loading messages:', error);
-                document.getElementById('messages').innerHTML = '<p>Error loading messages. Please try again.</p>';
-            }
+                msgElement.innerHTML = `
+                    <p><strong>${msg.number}</strong></p>
+                    <p>${msg.message}</p>
+                    ${msg.urlMedia ? `<p><a href="${msg.urlMedia}" target="_blank">View Media</a></p>` : ''}
+                    <small>${new Date(msg.timestamp).toLocaleString()}</small>
+                `;
+                messagesDiv.appendChild(msgElement);
+            });
+            
+            // Desplazarse automáticamente hacia el final de los mensajes
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
+    } catch (error) {
+        console.error('Error loading messages:', error);
+        document.getElementById('messages').innerHTML = '<p>Error loading messages. Please try again.</p>';
+    }
+}
 
-        // Enviar una respuesta al número proporcionado
-        document.getElementById('responseForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-
+        // Send a response when the button is clicked
+        document.getElementById('sendButton').addEventListener('click', async () => {
             const number = document.getElementById('number').value;
             const responseText = document.getElementById('response').value;
 
+            if (!number || !responseText) {
+                alert('Please enter both the phone number and the message.');
+                return;
+            }
+
             try {
-                const res = await fetch('/send-response', { // Reemplaza con la URL completa si es necesario
+                const res = await fetch('/send-response', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ number, response: responseText })
                 });
 
                 if (res.ok) {
-                    alert('Response sent successfully!');
-                    document.getElementById('responseForm').reset();
-                    loadMessages(); // Recargar mensajes después de enviar la respuesta
+                    alert('Message sent!');
+                    document.getElementById('response').value = '';
+                    loadMessages();
                 } else {
-                    alert('Failed to send response.');
+                    alert('Failed to send message.');
                 }
             } catch (error) {
-                console.error('Error sending response:', error);
+                console.error('Error sending message:', error);
                 alert('An error occurred. Please try again.');
             }
         });
 
-        // Cargar mensajes al iniciar la página
+        // Load messages when the page loads
         loadMessages();
     </script>
 </body>

@@ -69,11 +69,15 @@ app.get('/get-messages', async (req, res) => {
     }
 })
 
+// Ruta para enviar una respuesta manual a un mensaje de WhatsApp
 app.post('/send-response', async (req, res) => {
     const { number, response } = req.body
+
     try {
         const accessToken = process.env.ACCESS_TOKEN
         const phoneNumberId = process.env.PHONE_NUMBER_ID
+
+        // URL de la API de WhatsApp para enviar mensajes
         const url = `https://graph.facebook.com/v13.0/${phoneNumberId}/messages`
 
         const payload = {
@@ -82,6 +86,7 @@ app.post('/send-response', async (req, res) => {
             text: { body: response }
         }
 
+        // Enviar la respuesta al usuario
         const apiResponse = await fetch(url, {
             method: 'POST',
             headers: {
@@ -93,6 +98,12 @@ app.post('/send-response', async (req, res) => {
 
         const data = await apiResponse.json()
         if (apiResponse.ok) {
+            // Almacenar el mensaje enviado en la base de datos
+            await db.execute(
+                'INSERT INTO messages (number, message, urlMedia, direction) VALUES (?, ?, ?, ?)',
+                [number, response, null, 'outgoing']
+            )
+
             res.status(200).json({ status: 'Response sent successfully', data })
         } else {
             console.error('Error sending response:', data)
@@ -103,7 +114,6 @@ app.post('/send-response', async (req, res) => {
         res.status(500).json({ error: 'Failed to send response' })
     }
 })
-
 // Iniciar el servidor y escuchar en el puerto definido
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
