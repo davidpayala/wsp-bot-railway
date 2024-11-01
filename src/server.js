@@ -2,10 +2,7 @@
 import express from 'express'
 import fetch from 'node-fetch'
 import db from './db.js'
-import dotenv from 'dotenv'
 
-// Cargar variables de entorno
-dotenv.config()
 
 // Crear una instancia de Express
 const app = express()
