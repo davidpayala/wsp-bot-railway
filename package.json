@@ -1,17 +1,32 @@
 {
-    "name": "wspkm",
+    "name": "whatsapp-messaging-api",
     "version": "1.0.0",
-    "description": "",
-    "main": "./src/server.js",
-    "type": "module",
+    "description": "API for receiving and responding to WhatsApp messages using WhatsApp Business API and MySQL",
+    "main": "server.js",
     "scripts": {
-        "start": "node ./src/server.js"
+      "start": "node server.js",
+      "dev": "nodemon server.js"
     },
-    "keywords": [],
     "dependencies": {
-        "express": "^4.21.1",
-        "mysql2": "^3.11.3"
+      "dotenv": "^16.4.5",
+      "express": "^4.21.1",
+      "mysql2": "^3.11.3",
+      "node-fetch": "^3.3.2"
     },
-    "author": "",
-    "license": "ISC"
-}
+    "devDependencies": {
+      "nodemon": "^3.1.7"
+    },
+    "engines": {
+      "node": ">=22.0.0"
+    },
+    "type": "module",
+    "keywords": [
+      "WhatsApp",
+      "API",
+      "MySQL",
+      "Express"
+    ],
+    "author": "WhyClaw",
+    "license": "MIT"
+  }
+  
