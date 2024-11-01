@@ -2,9 +2,9 @@
     "name": "whatsapp-messaging-api",
     "version": "1.0.0",
     "description": "API for receiving and responding to WhatsApp messages using WhatsApp Business API and MySQL",
-    "main": "./src/server.js",
+    "main": "server.js",
     "scripts": {
-      "start": "node ./src/server.js"
+      "start": "node server.js"
     },
     "dependencies": {
       "dotenv": "^16.4.5",
