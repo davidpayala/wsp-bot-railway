@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Message Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #messages { margin-top: 20px; max-width: 600px; }
+        .message { padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 5px; }
+        .message p { margin: 5px 0; }
+        form { margin-top: 20px; }
+        label, input, button { display: block; margin: 5px 0; }
+        input, button { padding: 8px; width: 100%; max-width: 300px; }
+        button { cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>WhatsApp Messages</h1>
+    <div id="messages">Loading messages...</div>
+
+    <h2>Send a Response</h2>
+    <form id="responseForm">
+        <label for="number">Phone Number:</label>
+        <input type="text" id="number" placeholder="Enter phone number" required>
+        
+        <label for="response">Response:</label>
+        <input type="text" id="response" placeholder="Enter your response" required>
+        
+        <button type="submit">Send Response</button>
+    </form>
+
+    <script>
+        // Cargar mensajes desde la API y mostrarlos en la interfaz
+        async function loadMessages() {
+            try {
+                const response = await fetch('/get-messages'); // Reemplaza con la URL completa si es necesario
+                const messages = await response.json();
+                const messagesDiv = document.getElementById('messages');
+                
+                messagesDiv.innerHTML = ''; // Limpiar el contenido actual
+                if (messages.length === 0) {
+                    messagesDiv.innerHTML = '<p>No messages available.</p>';
+                }
+
+                messages.forEach(msg => {
+                    const msgElement = document.createElement('div');
+                    msgElement.classList.add('message');
+                    
+                    msgElement.innerHTML = `
+                        <p><strong>From:</strong> ${msg.number}</p>
+                        <p><strong>Message:</strong> ${msg.message}</p>
+                        ${msg.urlMedia ? `<p><strong>Media:</strong> <a href="${msg.urlMedia}" target="_blank">View</a></p>` : ''}
+                        <p><small>Received at: ${new Date(msg.timestamp).toLocaleString()}</small></p>
+                    `;
+                    messagesDiv.appendChild(msgElement);
+                });
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                document.getElementById('messages').innerHTML = '<p>Error loading messages. Please try again.</p>';
+            }
+        }
+
+        // Enviar una respuesta al número proporcionado
+        document.getElementById('responseForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const number = document.getElementById('number').value;
+            const responseText = document.getElementById('response').value;
+
+            try {
+                const res = await fetch('/send-response', { // Reemplaza con la URL completa si es necesario
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ number, response: responseText })
+                });
+
+                if (res.ok) {
+                    alert('Response sent successfully!');
+                    document.getElementById('responseForm').reset();
+                    loadMessages(); // Recargar mensajes después de enviar la respuesta
+                } else {
+                    alert('Failed to send response.');
+                }
+            } catch (error) {
+                console.error('Error sending response:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+
+        // Cargar mensajes al iniciar la página
+        loadMessages();
+    </script>
+</body>
+</html>
