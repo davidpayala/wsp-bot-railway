@@ -167,3 +167,20 @@ body {
     border: none;
     cursor: pointer;
 }
+
+/* Indicadores de estado de mensaje */
+.sent {
+    color: green;
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+}
+
+.failed {
+    color: red;
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+}

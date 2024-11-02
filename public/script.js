@@ -80,16 +80,7 @@ async function loadMessages(number) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll al final
 }
 
-// Enviar una respuesta al presionar Enter o hacer clic en el botón de envío
-document.getElementById('response').addEventListener('keypress', async (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault(); // Evitar el salto de línea
-        sendMessage();
-    }
-});
-
-document.getElementById('sendButton').addEventListener('click', sendMessage);
-
+// Mostrar el mensaje en el chat inmediatamente y luego intentar enviarlo al servidor
 async function sendMessage() {
     const responseText = document.getElementById('response').value;
 
@@ -98,19 +89,47 @@ async function sendMessage() {
         return;
     }
 
+    // Agregar el mensaje al chat inmediatamente
+    const messagesDiv = document.getElementById('messages');
+    const tempMessage = document.createElement('div');
+    tempMessage.classList.add('message', 'outgoing');
+    tempMessage.innerHTML = `
+        <p>${responseText}</p>
+        <span class="time status">Sending...</span>
+    `;
+    messagesDiv.appendChild(tempMessage);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll al final
+
+    // Limpiar el campo de entrada de mensaje
+    document.getElementById('response').value = '';
+
+    // Intentar enviar el mensaje al servidor
     const res = await fetch('/send-response', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ number: selectedNumber, response: responseText })
     });
 
+    // Actualizar el estado del mensaje en función de la respuesta
+    const statusElement = tempMessage.querySelector('.status');
     if (res.ok) {
-        document.getElementById('response').value = ''; // Limpiar campo de respuesta
-        loadMessages(selectedNumber); // Recargar mensajes para ver el nuevo mensaje
+        statusElement.textContent = '✔'; // Mostrar check
+        statusElement.classList.add('sent'); // Clase para el check enviado
     } else {
-        alert('Failed to send message.');
+        statusElement.textContent = '✖'; // Mostrar X roja
+        statusElement.classList.add('failed'); // Clase para el mensaje fallido
     }
 }
+
+// Enviar mensaje al presionar Enter o hacer clic en el botón de envío
+document.getElementById('response').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Evitar salto de línea
+        sendMessage();
+    }
+});
+
+document.getElementById('sendButton').addEventListener('click', sendMessage);
 
 // Verificar automáticamente nuevos mensajes y actualizar los contactos no leídos cada 5 segundos
 setInterval(async () => {
