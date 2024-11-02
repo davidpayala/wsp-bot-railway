@@ -115,3 +115,14 @@ body {
 .input-container button:hover {
     background-color: #075e54;
 }
+
+/* Divisor de Fecha */
+.date-divider {
+    text-align: center;
+    margin: 10px 0;
+    padding: 5px;
+    background-color: #f0f0f0;
+    color: #555;
+    font-size: 0.9em;
+    border-radius: 5px;
+}
