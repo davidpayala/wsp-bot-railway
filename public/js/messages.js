@@ -5,7 +5,8 @@ export async function loadMessages(number) {
     const messagesDiv = document.getElementById('messages');
     messagesDiv.innerHTML = ''; // Limpiar mensajes actuales
 
-    const filteredMessages = messages.filter(msg => msg.number === number)
+    const filteredMessages = messages
+        .filter(msg => msg.number === number)
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     let lastDate = null;

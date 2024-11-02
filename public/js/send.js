@@ -1,5 +1,4 @@
-import { loadMessages } from './messages.js';
-import { selectedNumber } from './main.js';
+import { getSelectedNumber } from './main.js';
 
 // Configura el evento para enviar mensajes al presionar Enter o hacer clic en el botón
 export function setupSendEvent() {
@@ -16,9 +15,10 @@ export function setupSendEvent() {
 // Enviar el mensaje y actualizar el estado en función de la respuesta
 export async function sendMessage() {
     const responseText = document.getElementById('response').value;
+    const selectedNumber = getSelectedNumber();
 
     if (!selectedNumber || !responseText) {
-        alert('Please select a contact and enter a message.');
+        alert('Selecciona un contacto y escribe un mensaje.');
         return;
     }
 
@@ -26,7 +26,7 @@ export async function sendMessage() {
     const messagesDiv = document.getElementById('messages');
     const tempMessage = document.createElement('div');
     tempMessage.classList.add('message', 'outgoing');
-    tempMessage.innerHTML = `<p>${responseText}</p><span class="time status">Sending...</span>`;
+    tempMessage.innerHTML = `<p>${responseText}</p><span class="time status">Enviando...</span>`;
     messagesDiv.appendChild(tempMessage);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
@@ -41,11 +41,5 @@ export async function sendMessage() {
 
     // Actualizar el estado del mensaje
     const statusElement = tempMessage.querySelector('.status');
-    if (res.ok) {
-        statusElement.textContent = '✔'; // Check enviado
-        statusElement.classList.add('sent');
-    } else {
-        statusElement.textContent = '✖'; // X roja
-        statusElement.classList.add('failed');
-    }
+    statusElement.textContent = res.ok ? '✔' : '✖'; // Actualiza a check o X según el resultado
 }

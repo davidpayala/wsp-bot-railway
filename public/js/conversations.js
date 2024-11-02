@@ -1,7 +1,7 @@
 import { loadMessages } from './messages.js';
-import { selectedNumber } from './main.js';
+import { updateSelectedNumber } from './main.js';
 
-export const unreadContacts = new Set(); // Almacena contactos con mensajes no leídos
+export const unreadContacts = new Set(); // Almacena los contactos con mensajes no leídos
 
 // Cargar los contactos y mostrarlos en la barra lateral
 export async function loadContacts() {
@@ -32,11 +32,10 @@ function createContactElement(contact, sidebar) {
     sidebar.appendChild(contactElement);
 }
 
-// Seleccionar un Contacto y Cargar Mensajes
+// Seleccionar un contacto y cargar sus mensajes
 export function selectContact(number) {
-    updateSelectedNumber(number); // Actualiza selectedNumber usando la función
-    unreadContacts.delete(number);
+    updateSelectedNumber(number); // Actualiza el contacto seleccionado en main.js
+    unreadContacts.delete(number); // Quita el contacto de no leídos
     document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
-    event.target.classList.add('active'); // Asegúrate de que `event.target` se refiere al contacto seleccionado
-    loadMessages(number);
+    loadMessages(number); // Cargar mensajes del contacto seleccionado
 }

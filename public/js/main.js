@@ -1,25 +1,26 @@
-let selectedNumber = null; // Variable local, no se exporta directamente
-
-// Función para actualizar selectedNumber
-export function updateSelectedNumber(number) {
-    selectedNumber = number;
-}
-
-// Función para obtener el valor actual de selectedNumber
-export function getSelectedNumber() {
-    return selectedNumber;
-}
-
-// Resto del código de inicialización
 import { loadContacts } from './conversations.js';
 import { updateUnreadMessages } from './utils.js';
 import { setupSendEvent } from './send.js';
 
+// Variable para el contacto seleccionado (inicialmente null)
+let selectedNumber = null;
+
+// Función para actualizar el contacto seleccionado
+export function updateSelectedNumber(number) {
+    selectedNumber = number;
+}
+
+// Función para obtener el valor del contacto seleccionado
+export function getSelectedNumber() {
+    return selectedNumber;
+}
+
+// Inicializar la aplicación
 function initializeApp() {
     loadContacts(); // Cargar lista de contactos
     setupSendEvent(); // Configura el evento para el envío de mensajes
 
-    // Temporizador para actualizar contactos y mensajes no leídos cada 5 segundos
+    // Configura un intervalo para actualizar mensajes y contactos no leídos cada 5 segundos
     setInterval(updateUnreadMessages, 5000);
 }
 
