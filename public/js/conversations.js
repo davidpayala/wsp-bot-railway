@@ -34,7 +34,7 @@ function createContactElement(contact, sidebar) {
 
 // Seleccionar un Contacto y Cargar Mensajes
 export function selectContact(number) {
-    selectedNumber = number; // Esto ahora se reasigna correctamente
+    updateSelectedNumber(number); // Actualiza selectedNumber usando la función
     unreadContacts.delete(number);
     document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
     event.target.classList.add('active'); // Asegúrate de que `event.target` se refiere al contacto seleccionado
