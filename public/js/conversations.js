@@ -32,11 +32,11 @@ function createContactElement(contact, sidebar) {
     sidebar.appendChild(contactElement);
 }
 
-// Seleccionar un contacto y cargar sus mensajes
+// Seleccionar un Contacto y Cargar Mensajes
 export function selectContact(number) {
-    selectedNumber = number;
+    selectedNumber = number; // Esto ahora se reasigna correctamente
     unreadContacts.delete(number);
     document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
-    event.target.classList.add('active');
+    event.target.classList.add('active'); // Asegúrate de que `event.target` se refiere al contacto seleccionado
     loadMessages(number);
 }
