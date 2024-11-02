@@ -1,6 +1,6 @@
-import { loadContacts } from './conversations.js';
+import { unreadContacts, loadContacts } from './conversations.js';
 import { loadMessages } from './messages.js';
-import { selectedNumber, unreadContacts } from './main.js';
+import { selectedNumber } from './main.js';
 
 // Actualizar automáticamente mensajes y contactos no leídos cada 5 segundos
 export async function updateUnreadMessages() {
