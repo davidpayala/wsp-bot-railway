@@ -1,0 +1,117 @@
+/* General Layout */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f2f5;
+}
+
+.container {
+    display: flex;
+    width: 800px;
+    height: 80vh;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar */
+.sidebar {
+    width: 200px;
+    background-color: #075e54;
+    color: #ffffff;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    margin: 0 0 10px;
+    font-size: 1.2em;
+}
+
+.contact {
+    padding: 8px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.contact:hover, .contact.active {
+    background-color: #128c7e;
+}
+
+/* Chat Area */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: #e5ddd5;
+}
+
+.messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #e5ddd5;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.incoming {
+    background-color: #ffffff;
+    align-self: flex-start;
+}
+
+.outgoing {
+    background-color: #d2f8d2;
+    align-self: flex-end;
+}
+
+.time {
+    font-size: 0.8em;
+    color: #555;
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+}
+
+/* Input Container */
+.input-container {
+    display: flex;
+    padding: 10px;
+    background-color: #f7f7f7;
+    border-top: 1px solid #ddd;
+}
+
+.input-container input[type="text"] {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.input-container button {
+    padding: 8px 16px;
+    background-color: #128c7e;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.input-container button:hover {
+    background-color: #075e54;
+}
