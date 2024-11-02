@@ -1,4 +1,4 @@
-let selectedNumber = null; // Cambiado de export const a una variable local
+let selectedNumber = null; // Variable local, no se exporta directamente
 
 // Función para actualizar selectedNumber
 export function updateSelectedNumber(number) {
