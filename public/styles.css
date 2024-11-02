@@ -38,6 +38,13 @@ body {
     margin-bottom: 5px;
     cursor: pointer;
     border-radius: 5px;
+    
+}
+
+/* Estilos para el círculo rojo indicador de mensajes no leídos */
+.contact {
+    position: relative;
+    padding-right: 25px; /* Espacio para el círculo */
 }
 
 .contact:hover, .contact.active {
@@ -125,4 +132,38 @@ body {
     color: #555;
     font-size: 0.9em;
     border-radius: 5px;
+}
+
+.unread-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    display: none; /* Se muestra solo si hay mensajes no leídos */
+}
+
+.contact.unread .unread-indicator {
+    display: block;
+}
+
+/* Alinear los mensajes `incoming` a la derecha */
+.incoming {
+    background-color: #ffffff;
+    align-self: flex-end; /* Alineado a la derecha */
+    text-align: left;     /* Texto alineado a la izquierda */
+}
+
+.outgoing {
+    background-color: #d2f8d2;
+    align-self: flex-start; /* Alineado a la izquierda */
+}
+
+/* Ajustes de estilo para el ícono de envío */
+.input-container button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
 }

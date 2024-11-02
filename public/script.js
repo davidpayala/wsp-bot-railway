@@ -1,4 +1,5 @@
 let selectedNumber = null;
+const unreadContacts = new Set(); // Almacena números con mensajes no leídos
 
 // Cargar los contactos únicos (números) y mostrarlos como pestañas en la barra lateral
 async function loadContacts() {
@@ -14,6 +15,16 @@ async function loadContacts() {
         contactElement.classList.add('contact');
         contactElement.textContent = contact;
         contactElement.onclick = () => selectContact(contact);
+
+        // Indicador de mensajes no leídos
+        const unreadIndicator = document.createElement('span');
+        unreadIndicator.classList.add('unread-indicator');
+        contactElement.appendChild(unreadIndicator);
+
+        if (unreadContacts.has(contact)) {
+            contactElement.classList.add('unread');
+        }
+
         sidebar.appendChild(contactElement);
     });
 }
@@ -21,8 +32,12 @@ async function loadContacts() {
 // Seleccionar un contacto y cargar los mensajes correspondientes
 async function selectContact(number) {
     selectedNumber = number;
-    document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active'));
+
+    // Marcar el contacto como leído
+    unreadContacts.delete(number);
+    document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
     event.target.classList.add('active');
+
     loadMessages(number);
 }
 
@@ -65,8 +80,17 @@ async function loadMessages(number) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll al final
 }
 
-// Enviar una respuesta y guardar en la base de datos
-document.getElementById('sendButton').addEventListener('click', async () => {
+// Enviar una respuesta al presionar Enter o hacer clic en el botón de envío
+document.getElementById('response').addEventListener('keypress', async (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Evitar el salto de línea
+        sendMessage();
+    }
+});
+
+document.getElementById('sendButton').addEventListener('click', sendMessage);
+
+async function sendMessage() {
     const responseText = document.getElementById('response').value;
 
     if (!selectedNumber || !responseText) {
@@ -86,14 +110,24 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     } else {
         alert('Failed to send message.');
     }
-});
+}
 
-// Actualizar automáticamente los mensajes cada 5 segundos
-setInterval(() => {
+// Verificar automáticamente nuevos mensajes y actualizar los contactos no leídos cada 5 segundos
+setInterval(async () => {
+    const response = await fetch('/get-messages');
+    const messages = await response.json();
+
+    messages.forEach(msg => {
+        if (!unreadContacts.has(msg.number) && msg.direction === 'incoming' && msg.number !== selectedNumber) {
+            unreadContacts.add(msg.number); // Agregar a no leídos
+        }
+    });
+
+    loadContacts(); // Actualizar contactos para reflejar los no leídos
     if (selectedNumber) {
-        loadMessages(selectedNumber);
+        loadMessages(selectedNumber); // Actualizar mensajes si hay un contacto seleccionado
     }
 }, 5000); // 5000 ms = 5 segundos
 
-// Cargar contactos y mensajes al cargar la página
+// Cargar contactos al inicio
 window.onload = loadContacts;
