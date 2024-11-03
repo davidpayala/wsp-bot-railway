@@ -9,7 +9,7 @@ export async function loadContacts() {
     const messages = await response.json();
     const contacts = Array.from(new Set(messages.map(msg => msg.number)));
     const sidebar = document.getElementById('sidebar');
-    sidebar.innerHTML = '<h2>Chats</h2>';
+    sidebar.innerHTML = '<h2>Chats</h2>'; // Limpiar contactos actuales
 
     contacts.forEach(contact => {
         const lastMessage = messages.find(msg => msg.number === contact);
@@ -25,13 +25,16 @@ function createContactElement(contact, sidebar, hasUnread) {
     contactElement.textContent = contact;
     contactElement.onclick = () => selectContact(contact);
 
+    // Indicador de no leído (círculo rojo)
     const unreadIndicator = document.createElement('span');
     unreadIndicator.classList.add('unread-indicator');
-
     if (hasUnread) {
-        contactElement.classList.add('unread');
+        unreadIndicator.style.display = 'inline-block'; // Mostrar el indicador si hay mensajes no leídos
+    } else {
+        unreadIndicator.style.display = 'none'; // Ocultar el indicador si no hay mensajes no leídos
     }
 
+    contactElement.appendChild(unreadIndicator);
     sidebar.appendChild(contactElement);
 }
 
