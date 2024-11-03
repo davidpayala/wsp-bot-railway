@@ -26,6 +26,24 @@ app.get('/receive-whatsapp', (req, res) => {
     }
 })
 
+/*
+ * Esta ruta obtiene todos los mensajes almacenados en la base de datos,
+ * incluyendo la información del número de contacto, mensaje, marca de tiempo,
+ * dirección (entrante/saliente) y el estado (leído o no leído). */
+app.get('/get-messages', async (req, res) => {
+    const messages = await db.query('SELECT number, message, timestamp, direction, estado FROM messages');
+    res.json(messages);
+});
+/*
+* Esta ruta actualiza el estado de los mensajes de un contacto específico a "leído".
+* Se utiliza cuando el usuario abre la conversación de un contacto en la interfaz,
+* marcando así los mensajes previos como leídos. */
+app.post('/update-status', async (req, res) => {
+    const { number } = req.body;
+    await db.query('UPDATE messages SET estado = "leido" WHERE number = ? AND estado = "no_leido"', [number]);
+    res.json({ success: true });
+});
+
 app.post('/receive-whatsapp', async (req, res) => {
     try {
         const { object, entry } = req.body

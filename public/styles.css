@@ -184,3 +184,28 @@ body {
     bottom: 5px;
     right: 10px;
 }
+
+.send-symbol {
+    font-size: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.unread-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.unread .unread-indicator {
+    display: inline-block;
+}
+
+.contact:not(.unread) .unread-indicator {
+    display: none;
+}

@@ -11,8 +11,29 @@ export async function loadContacts() {
     const sidebar = document.getElementById('sidebar');
     sidebar.innerHTML = '<h2>Chats</h2>'; // Limpiar contactos actuales
 
-    contacts.forEach(contact => createContactElement(contact, sidebar));
+    contacts.forEach(contact => {
+        const lastMessage = messages.find(msg => msg.number === contact && msg.estado === 'no_leido');
+        createContactElement(contact, sidebar, lastMessage?.estado === 'no_leido');
+    });
 }
+
+// Crear un elemento de contacto en la barra lateral
+function createContactElement(contact, sidebar, hasUnread) {
+    const contactElement = document.createElement('div');
+    contactElement.classList.add('contact');
+    contactElement.textContent = contact;
+    contactElement.onclick = () => selectContact(contact);
+
+    const unreadIndicator = document.createElement('span');
+    unreadIndicator.classList.add('unread-indicator');
+
+    if (hasUnread) {
+        contactElement.classList.add('unread');
+    }
+
+    sidebar.appendChild(contactElement);
+}
+
 
 // Crear un elemento de contacto en la barra lateral
 function createContactElement(contact, sidebar) {
@@ -31,11 +52,23 @@ function createContactElement(contact, sidebar) {
 
     sidebar.appendChild(contactElement);
 }
+// Función para actualizar el estado de los mensajes a "leído"
+async function markMessagesAsRead(number) {
+    await fetch('/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number })
+    });
+}
 
-// Seleccionar un contacto y cargar sus mensajes
-export function selectContact(number) {
+// Seleccionar un Contacto y Cargar Mensajes
+export async function selectContact(number) {
     updateSelectedNumber(number); // Actualiza el contacto seleccionado en main.js
     unreadContacts.delete(number); // Quita el contacto de no leídos
     document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
+    
+    // Marcar mensajes como leídos en la base de datos
+    await markMessagesAsRead(number);
+
     loadMessages(number); // Cargar mensajes del contacto seleccionado
 }
