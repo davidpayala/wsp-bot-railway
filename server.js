@@ -26,14 +26,7 @@ app.get('/receive-whatsapp', (req, res) => {
     }
 })
 
-/*
- * Esta ruta obtiene todos los mensajes almacenados en la base de datos,
- * incluyendo la información del número de contacto, mensaje, marca de tiempo,
- * dirección (entrante/saliente) y el estado (leído o no leído). */
-app.get('/get-messages', async (req, res) => {
-    const messages = await db.query('SELECT number, message, timestamp, direction, estado FROM messages');
-    res.json(messages);
-});
+
 /*
 * Esta ruta actualiza el estado de los mensajes de un contacto específico a "leído".
 * Se utiliza cuando el usuario abre la conversación de un contacto en la interfaz,
@@ -76,16 +69,14 @@ app.post('/receive-whatsapp', async (req, res) => {
         res.sendStatus(500)
     }
 })
-
-app.get('/get-messages', async (req, res) => {
-    try {
-        const [messages] = await db.execute('SELECT * FROM messages ORDER BY timestamp DESC')
-        res.status(200).json(messages)
-    } catch (error) {
-        console.error('Error fetching messages:', error)
-        res.status(500).json({ error: 'Failed to fetch messages' })
-    }
-})
+/*
+ * Esta ruta obtiene todos los mensajes almacenados en la base de datos,
+ * incluyendo la información del número de contacto, mensaje, marca de tiempo,
+ * dirección (entrante/saliente) y el estado (leído o no leído). */
+ app.get('/get-messages', async (req, res) => {
+    const messages = await db.query('SELECT number, message, timestamp, direction, estado FROM messages');
+    res.json(messages);
+});
 
 // Ruta para enviar una respuesta manual a un mensaje de WhatsApp
 app.post('/send-response', async (req, res) => {
