@@ -9,11 +9,12 @@ export async function loadContacts() {
     const messages = await response.json();
     const contacts = Array.from(new Set(messages.map(msg => msg.number)));
     const sidebar = document.getElementById('sidebar');
-    sidebar.innerHTML = '<h2>Chats</h2>'; // Limpiar contactos actuales
+    sidebar.innerHTML = '<h2>Chats</h2>';
 
     contacts.forEach(contact => {
-        const lastMessage = messages.find(msg => msg.number === contact && msg.estado === 'no_leido');
-        createContactElement(contact, sidebar, lastMessage?.estado === 'no_leido');
+        const lastMessage = messages.find(msg => msg.number === contact);
+        const hasUnread = lastMessage && lastMessage.estado === 'no_leido';
+        createContactElement(contact, sidebar, hasUnread);
     });
 }
 
@@ -47,12 +48,18 @@ async function markMessagesAsRead(number) {
 
 // Seleccionar un Contacto y Cargar Mensajes
 export async function selectContact(number) {
-    updateSelectedNumber(number); // Actualiza el contacto seleccionado en main.js
-    unreadContacts.delete(number); // Quita el contacto de no leídos
+    // 1. Actualiza el contacto seleccionado en main.js
+    updateSelectedNumber(number);
+    
+    // 2. Elimina el contacto de la lista de no leídos (si existe)
+    unreadContacts.delete(number);
+    
+    // 3. Limpia el estado "active" y "unread" de otros contactos en la interfaz
     document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
     
-    // Marcar mensajes como leídos en la base de datos
+    // 4. Marca los mensajes como leídos en la base de datos, usando la tabla `chat_status`
     await markMessagesAsRead(number);
 
-    loadMessages(number); // Cargar mensajes del contacto seleccionado
+    // 5. Cargar los mensajes del contacto seleccionado en la interfaz de chat
+    loadMessages(number);
 }

@@ -33,9 +33,26 @@ app.get('/receive-whatsapp', (req, res) => {
 * marcando así los mensajes previos como leídos. */
 app.post('/update-status', async (req, res) => {
     const { number } = req.body;
-    await db.query('UPDATE messages SET estado = "leido" WHERE number = ? AND estado = "no_leido"', [number]);
-    res.json({ success: true });
+
+    if (!number) {
+        return res.status(400).json({ error: "Número no proporcionado" });
+    }
+
+    try {
+        // Actualizar el estado a "leído" en la tabla `chat_status` para el número especificado
+        await db.execute(`
+            UPDATE chat_status
+            SET estado = 'leido'
+            WHERE number = ?
+        `, [number]);
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error al actualizar el estado del chat:", error);
+        res.status(500).json({ error: "Error al actualizar el estado del chat" });
+    }
 });
+
 
 app.post('/receive-whatsapp', async (req, res) => {
     try {
@@ -74,18 +91,19 @@ app.post('/receive-whatsapp', async (req, res) => {
  * incluyendo la información del número de contacto, mensaje, marca de tiempo,
  * dirección (entrante/saliente) y el estado (leído o no leído). */
 
-app.get('/get-messages', async (req, res) => {
+ app.get('/get-messages', async (req, res) => {
     try {
-        // Consulta para obtener todos los mensajes, incluyendo su estado "leído/no leído" y ordenados por timestamp
-        const [messages] = await db.execute('SELECT number, message, timestamp, direction, estado FROM messages ORDER BY timestamp DESC');
-        
-        // Responder con el resultado en formato JSON
+        // Obtener los mensajes y el estado del chat de cada contacto
+        const [messages] = await db.execute(`
+            SELECT m.number, m.message, m.timestamp, m.direction, cs.estado
+            FROM messages AS m
+            LEFT JOIN chat_status AS cs ON m.number = cs.number
+            ORDER BY m.timestamp DESC
+        `);
+
         res.status(200).json(messages);
     } catch (error) {
-        // Registrar el error en la consola
         console.error('Error fetching messages:', error);
-        
-        // Responder con un estado de error 500 y mensaje de error en formato JSON
         res.status(500).json({ error: 'Failed to fetch messages' });
     }
 });
@@ -119,10 +137,20 @@ app.post('/send-response', async (req, res) => {
 
         const data = await apiResponse.json()
         if (apiResponse.ok) {
-            // Almacenar el mensaje enviado en la base de datos
+            // Almacenar el mensaje enviado en la tabla messages
             await db.execute(
                 'INSERT INTO messages (number, message, urlMedia, direction) VALUES (?, ?, ?, ?)',
                 [number, response, null, 'outgoing']
+            )
+
+            // Actualizar la tabla chat_status con el estado y la fecha del último mensaje
+            await db.execute(
+                `
+                INSERT INTO chat_status (number, estado, last_message)
+                VALUES (?, 'no_leido', NOW())
+                ON DUPLICATE KEY UPDATE last_message = NOW(), estado = 'no_leido'
+                `,
+                [number]
             )
 
             res.status(200).json({ status: 'Response sent successfully', data })
@@ -135,6 +163,7 @@ app.post('/send-response', async (req, res) => {
         res.status(500).json({ error: 'Failed to send response' })
     }
 })
+
 // Iniciar el servidor y escuchar en el puerto definido
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
