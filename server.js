@@ -32,19 +32,20 @@ app.get('/receive-whatsapp', (req, res) => {
 * Se utiliza cuando el usuario abre la conversación de un contacto en la interfaz,
 * marcando así los mensajes previos como leídos. */
 app.post('/update-status', async (req, res) => {
-    const { number } = req.body;
+    const { number, estado } = req.body;
 
-    if (!number) {
-        return res.status(400).json({ error: "Número no proporcionado" });
+    // Validación de parámetros
+    if (!number || !estado) {
+        return res.status(400).json({ error: "Número o estado no proporcionado" });
     }
 
     try {
-        // Actualizar el estado a "leído" en la tabla `chat_status` para el número especificado
+        // Actualizar el estado en la tabla `chat_status` para el número especificado
         await db.execute(`
             UPDATE chat_status
-            SET estado = 'leido'
+            SET estado = ?, last_message = NOW()
             WHERE number = ?
-        `, [number]);
+        `, [estado, number]);
 
         res.json({ success: true });
     } catch (error) {
@@ -52,6 +53,7 @@ app.post('/update-status', async (req, res) => {
         res.status(500).json({ error: "Error al actualizar el estado del chat" });
     }
 });
+
 
 app.post('/receive-whatsapp', async (req, res) => {
     try {
@@ -69,27 +71,22 @@ app.post('/receive-whatsapp', async (req, res) => {
                             const text = message.text?.body || null;
                             const urlMedia = message.image?.url || null;
 
-                            // Insertar el mensaje entrante en la base de datos
+                            // Guardar el mensaje entrante en la base de datos
                             await db.execute(
                                 'INSERT INTO messages (number, message, urlMedia, direction, timestamp) VALUES (?, ?, ?, ?, NOW())',
                                 [number, text, urlMedia, 'incoming']
                             );
                             console.log(`Received message from ${number}: ${text}`);
 
-                            // Obtener el contacto actualmente seleccionado (esto asume que tienes esta función disponible)
-                            const selectedNumber = getSelectedNumber(); // Asegúrate de que esta función esté definida y accesible
-
-                            // Si el contacto seleccionado es diferente al remitente, marca el estado como "no_leido"
-                            if (selectedNumber !== number) {
-                                await db.execute(
-                                    `
-                                    INSERT INTO chat_status (number, estado, last_message)
-                                    VALUES (?, 'no_leido', NOW())
-                                    ON DUPLICATE KEY UPDATE estado = 'no_leido', last_message = NOW()
-                                    `,
-                                    [number]
-                                );
-                            }
+                            // Actualizar o establecer el estado a "no_leido" en chat_status
+                            await db.execute(
+                                `
+                                INSERT INTO chat_status (number, estado, last_message)
+                                VALUES (?, 'no_leido', NOW())
+                                ON DUPLICATE KEY UPDATE estado = 'no_leido', last_message = NOW()
+                                `,
+                                [number]
+                            );
                         });
                     }
                 });

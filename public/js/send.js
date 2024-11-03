@@ -1,17 +1,35 @@
 import { getSelectedNumber } from './main.js';
 
-// Configura el evento para enviar mensajes al presionar Enter o hacer clic en el botón
+
+// Configura el evento para enviar mensajes y actualizar el estado a "leído" al escribir
 export function setupSendEvent() {
-    document.getElementById('response').addEventListener('keypress', (event) => {
+    const responseInput = document.getElementById('response');
+
+    // Cambiar el estado a "leído" cuando el usuario empieza a escribir en el campo de entrada
+    responseInput.addEventListener('input', async () => {
+        const number = getSelectedNumber(); // Obtener el número del chat actualmente abierto
+
+        if (number) {
+            // Enviar una solicitud para actualizar el estado a "leído" en la base de datos
+            await fetch('/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ number, estado: 'leido' })
+            });
+        }
+    });
+
+    // Enviar mensaje al presionar Enter
+    responseInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             sendMessage();
         }
     });
 
+    // Enviar mensaje al hacer clic en el botón de enviar
     document.getElementById('sendButton').addEventListener('click', sendMessage);
 }
-
 // Enviar el mensaje y actualizar el estado en función de la respuesta
 export async function sendMessage() {
     const responseText = document.getElementById('response').value;
