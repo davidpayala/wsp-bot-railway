@@ -53,39 +53,56 @@ app.post('/update-status', async (req, res) => {
     }
 });
 
-
 app.post('/receive-whatsapp', async (req, res) => {
     try {
-        const { object, entry } = req.body
+        const { object, entry } = req.body;
         if (object === 'whatsapp_business_account') {
             entry.forEach(async (entry) => {
-                const changes = entry.changes
+                const changes = entry.changes;
                 changes.forEach(async (change) => {
-                    const value = change.value
-                    const messages = value.messages
+                    const value = change.value;
+                    const messages = value.messages;
 
                     if (messages) {
                         messages.forEach(async (message) => {
-                            const number = message.from
-                            const text = message.text?.body || null
-                            const urlMedia = message.image?.url || null
+                            const number = message.from;
+                            const text = message.text?.body || null;
+                            const urlMedia = message.image?.url || null;
+
+                            // Insertar el mensaje entrante en la base de datos
                             await db.execute(
-                                'INSERT INTO messages (number, message, urlMedia) VALUES (?, ?, ?)',
-                                [number, text, urlMedia]
-                            )
-                            console.log(`Received message from ${number}: ${text}`)
-                        })
+                                'INSERT INTO messages (number, message, urlMedia, direction, timestamp) VALUES (?, ?, ?, ?, NOW())',
+                                [number, text, urlMedia, 'incoming']
+                            );
+                            console.log(`Received message from ${number}: ${text}`);
+
+                            // Obtener el contacto actualmente seleccionado (esto asume que tienes esta función disponible)
+                            const selectedNumber = getSelectedNumber(); // Asegúrate de que esta función esté definida y accesible
+
+                            // Si el contacto seleccionado es diferente al remitente, marca el estado como "no_leido"
+                            if (selectedNumber !== number) {
+                                await db.execute(
+                                    `
+                                    INSERT INTO chat_status (number, estado, last_message)
+                                    VALUES (?, 'no_leido', NOW())
+                                    ON DUPLICATE KEY UPDATE estado = 'no_leido', last_message = NOW()
+                                    `,
+                                    [number]
+                                );
+                            }
+                        });
                     }
-                })
-            })
+                });
+            });
         }
 
-        res.status(200).send('EVENT_RECEIVED')
+        res.status(200).send('EVENT_RECEIVED');
     } catch (error) {
-        console.error('Error receiving WhatsApp message:', error)
-        res.sendStatus(500)
+        console.error('Error receiving WhatsApp message:', error);
+        res.sendStatus(500);
     }
-})
+});
+
 /*
  * Esta ruta obtiene todos los mensajes almacenados en la base de datos,
  * incluyendo la información del número de contacto, mensaje, marca de tiempo,
