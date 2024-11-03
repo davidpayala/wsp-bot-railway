@@ -7,6 +7,8 @@ export const unreadContacts = new Set(); // Almacena los contactos con mensajes 
 export async function loadContacts() {
     const response = await fetch('/get-messages');
     const messages = await response.json();
+
+    console.log('Messages received:', messages); // Verificar los datos recibidos
     const contacts = Array.from(new Set(messages.map(msg => msg.number)));
     const sidebar = document.getElementById('sidebar');
     sidebar.innerHTML = '<h2>Chats</h2>'; // Limpiar contactos actuales
