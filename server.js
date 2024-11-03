@@ -73,9 +73,21 @@ app.post('/receive-whatsapp', async (req, res) => {
  * Esta ruta obtiene todos los mensajes almacenados en la base de datos,
  * incluyendo la información del número de contacto, mensaje, marca de tiempo,
  * dirección (entrante/saliente) y el estado (leído o no leído). */
- app.get('/get-messages', async (req, res) => {
-    const messages = await db.query('SELECT number, message, timestamp, direction, estado FROM messages');
-    res.json(messages);
+
+app.get('/get-messages', async (req, res) => {
+    try {
+        // Consulta para obtener todos los mensajes, incluyendo su estado "leído/no leído" y ordenados por timestamp
+        const [messages] = await db.execute('SELECT number, message, timestamp, direction, estado FROM messages ORDER BY timestamp DESC');
+        
+        // Responder con el resultado en formato JSON
+        res.status(200).json(messages);
+    } catch (error) {
+        // Registrar el error en la consola
+        console.error('Error fetching messages:', error);
+        
+        // Responder con un estado de error 500 y mensaje de error en formato JSON
+        res.status(500).json({ error: 'Failed to fetch messages' });
+    }
 });
 
 // Ruta para enviar una respuesta manual a un mensaje de WhatsApp
