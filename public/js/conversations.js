@@ -35,23 +35,7 @@ function createContactElement(contact, sidebar, hasUnread) {
 }
 
 
-// Crear un elemento de contacto en la barra lateral
-function createContactElement(contact, sidebar) {
-    const contactElement = document.createElement('div');
-    contactElement.classList.add('contact');
-    contactElement.textContent = contact;
-    contactElement.onclick = () => selectContact(contact);
 
-    const unreadIndicator = document.createElement('span');
-    unreadIndicator.classList.add('unread-indicator');
-    contactElement.appendChild(unreadIndicator);
-
-    if (unreadContacts.has(contact)) {
-        contactElement.classList.add('unread');
-    }
-
-    sidebar.appendChild(contactElement);
-}
 // Función para actualizar el estado de los mensajes a "leído"
 async function markMessagesAsRead(number) {
     await fetch('/update-status', {
