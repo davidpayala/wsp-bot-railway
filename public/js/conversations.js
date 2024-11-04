@@ -1,5 +1,5 @@
 import { loadMessages } from './messages.js';
-import { updateSelectedNumber } from './main.js';
+import { updateSelectedNumber, showChat } from './main.js';
 
 export const unreadContacts = new Set(); // Almacena los contactos con mensajes no leídos
 
@@ -52,18 +52,17 @@ async function markMessagesAsRead(number) {
 
 // Seleccionar un Contacto y Cargar Mensajes
 export async function selectContact(number) {
-    // 1. Actualiza el contacto seleccionado en main.js
-    updateSelectedNumber(number);
-    
-    // 2. Elimina el contacto de la lista de no leídos (si existe)
-    unreadContacts.delete(number);
-    
-    // 3. Limpia el estado "active" y "unread" de otros contactos en la interfaz
+    updateSelectedNumber(number); // Actualiza el contacto seleccionado en main.js
+    unreadContacts.delete(number); // Elimina de los no leídos
+
     document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
     
-    // 4. Marca los mensajes como leídos en la base de datos, usando la tabla `chat_status`
+    // Llamar a `showChat` para abrir la interfaz de chat
+    showChat(number);
+
+    // Marcar mensajes como leídos
     await markMessagesAsRead(number);
 
-    // 5. Cargar los mensajes del contacto seleccionado en la interfaz de chat
+    // Cargar mensajes
     loadMessages(number);
 }

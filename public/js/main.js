@@ -11,7 +11,7 @@ function showMenu() {
     `;
 }
 
-function showChat(number) {
+export function showChat(number) {
     const chatContainer = document.getElementById('chat-container');
     chatContainer.innerHTML = `
         <button id="closeChatButton">❌</button>
@@ -27,6 +27,7 @@ function showChat(number) {
     loadMessages(number); // Carga los mensajes del contacto
     document.getElementById('closeChatButton').addEventListener('click', showMenu);
 }
+
 
 let selectedNumber = null; // Variable para almacenar el contacto seleccionado
 
