@@ -1,6 +1,6 @@
 import { loadMessages } from './messages.js';
 import { updateSelectedNumber, showChat } from './main.js';
-    
+
 export const unreadContacts = new Set(); // Almacena los contactos con mensajes no leídos
 
 // Cargar los contactos y mostrarlos en la barra lateral
@@ -42,13 +42,27 @@ function createContactElement(contact, sidebar, hasUnread) {
 
 
 // Función para actualizar el estado de los mensajes a "leído"
-async function markMessagesAsRead(number) {
-    await fetch('/update-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number })
-    });
+export async function markMessagesAsRead(number) {
+    if (!number) {
+        console.error("Número no proporcionado a markMessagesAsRead");
+        return;
+    }
+
+    try {
+        const response = await fetch('/update-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ number, estado: 'leido'  })
+        });
+
+        if (!response.ok) {
+            console.error("Error al actualizar el estado:", response.status, response.statusText);
+        }
+    } catch (error) {
+        console.error("Error en la solicitud a /update-status:", error);
+    }
 }
+
 
 // Seleccionar un Contacto y Cargar Mensajes
 export async function selectContact(number) {
