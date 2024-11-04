@@ -90,7 +90,8 @@ app.post('/receive-whatsapp', async (req, res) => {
                                 'INSERT INTO messages (number, message, urlMedia, direction, timestamp) VALUES (?, ?, ?, ?, NOW())',
                                 [number, text, urlMedia, 'incoming']
                             );
-                            // Actualizar o establecer el estado a "no_leido" en chat_status
+
+                            // Actualizar el estado en `chat_status` solo para mensajes entrantes
                             await db.execute(
                                 `
                                 INSERT INTO chat_status (number, estado, last_message)
@@ -111,6 +112,7 @@ app.post('/receive-whatsapp', async (req, res) => {
         res.sendStatus(500);
     }
 });
+
 
 /*
  * Esta ruta obtiene todos los mensajes almacenados en la base de datos,
