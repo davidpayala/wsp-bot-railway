@@ -49,9 +49,11 @@ function initializeApp() {
         alert('Nuevo mensaje no implementado todavía');
     });
 }
+
 document.addEventListener('DOMContentLoaded', () => {
-    loadMessages();
+    initializeApp(); // Asegúrate de que `initializeApp` solo se llama cuando el DOM está listo
 });
+
 
 // Ejecutar la función de inicialización cuando la página se cargue
 window.onload = initializeApp;
