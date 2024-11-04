@@ -23,10 +23,11 @@ export function showChat(number) {
             <button id="sendButton">→</button>
         </div>
     `;
-    setupSendEvent(); // Configura el envío de mensajes
+    setupSendEvent(); // Configura el envío de mensajes aquí, cuando los elementos ya están en el DOM
     loadMessages(number); // Carga los mensajes del contacto
     document.getElementById('closeChatButton').addEventListener('click', showMenu);
 }
+
 
 
 let selectedNumber = null; // Variable para almacenar el contacto seleccionado
@@ -43,17 +44,14 @@ function initializeApp() {
     // Mostrar el menú al cargar la página
     showMenu();
     loadContacts(); // Cargar lista inicial de contactos en la barra lateral
-    setupSendEvent(); // Configurar el evento de envío de mensajes
 
     document.getElementById('menuButton').addEventListener('click', showMenu);
     document.getElementById('newMessageButton').addEventListener('click', () => {
-        // Aquí puedes agregar la función de nuevo mensaje más adelante
         alert('Nuevo mensaje no implementado todavía');
-    
+    });
     
     // Configurar un intervalo para verificar nuevos mensajes
     setInterval(checkForNewMessages, 5000); // Verificar cada 5 segundos
-    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
