@@ -51,7 +51,10 @@ function initializeApp() {
     });
     
     // Configurar un intervalo para verificar nuevos mensajes
-    setInterval(checkForNewMessages, 5000); // Verificar cada 5 segundos
+    setInterval(() => {
+        loadContacts(); // Actualizar lista de contactos periódicamente
+        checkForNewMessages(); // Verificar nuevos mensajes en el chat abierto
+    }, 5000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

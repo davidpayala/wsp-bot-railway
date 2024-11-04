@@ -5,16 +5,20 @@ export const unreadContacts = new Set(); // Almacena los contactos con mensajes 
 
 // Cargar los contactos y mostrarlos en la barra lateral
 export async function loadContacts() {
-    const response = await fetch('/get-messages');
-    const messages = await response.json();
+    // Obtener contactos y estado de lectura
+    const response = await fetch('/get-contacts'); // Cambiamos el endpoint para obtener contactos con estado
+    const contactsData = await response.json();
     const contactsContainer = document.getElementById('contacts-container');
-    contactsContainer.innerHTML = ''; // Limpiar solo la lista de contactos
+    contactsContainer.innerHTML = ''; // Limpiar lista de contactos
 
-    const contacts = Array.from(new Set(messages.map(msg => msg.number)));
-    contacts.forEach(contact => {
-        const lastMessage = messages.find(msg => msg.number === contact);
-        const hasUnread = lastMessage && lastMessage.estado === 'no_leido';
-        createContactElement(contact, contactsContainer, hasUnread);
+    // Ordenar contactos por `last_message` de más reciente a más antiguo
+    const sortedContacts = contactsData.sort((a, b) => new Date(b.last_message) - new Date(a.last_message));
+
+    // Crear cada elemento de contacto en la barra lateral
+    sortedContacts.forEach(contactData => {
+        const { number, estado } = contactData;
+        const hasUnread = estado === 'no_leido';
+        createContactElement(number, contactsContainer, hasUnread);
     });
 }
 
@@ -29,11 +33,7 @@ function createContactElement(contact, sidebar, hasUnread) {
     // Indicador de no leído (círculo rojo)
     const unreadIndicator = document.createElement('span');
     unreadIndicator.classList.add('unread-indicator');
-    if (hasUnread) {
-        unreadIndicator.style.display = 'inline-block'; // Mostrar el indicador si hay mensajes no leídos
-    } else {
-        unreadIndicator.style.display = 'none'; // Ocultar el indicador si no hay mensajes no leídos
-    }
+    unreadIndicator.style.display = hasUnread ? 'inline-block' : 'none';
 
     contactElement.appendChild(unreadIndicator);
     sidebar.appendChild(contactElement);

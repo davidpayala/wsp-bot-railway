@@ -53,6 +53,20 @@ app.post('/update-status', async (req, res) => {
         res.status(500).json({ error: "Error al actualizar el estado del chat" });
     }
 });
+app.get('/get-contacts', async (req, res) => {
+    try {
+        // Obtener los contactos y sus estados de `chat_status`
+        const [contacts] = await db.execute(`
+            SELECT number, estado, last_message
+            FROM chat_status
+            ORDER BY last_message DESC
+        `);
+        res.status(200).json(contacts);
+    } catch (error) {
+        console.error('Error fetching contacts:', error);
+        res.status(500).json({ error: 'Failed to fetch contacts' });
+    }
+});
 
 
 app.post('/receive-whatsapp', async (req, res) => {
