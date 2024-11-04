@@ -1,5 +1,6 @@
 import { loadContacts } from './conversations.js';
 import { setupSendEvent } from './send.js';
+import { loadMessages } from './messages.js';
 
 function showMenu() {
     const chatContainer = document.getElementById('chat-container');
