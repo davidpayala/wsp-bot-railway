@@ -66,17 +66,12 @@ export async function markMessagesAsRead(number) {
 
 // Seleccionar un Contacto y Cargar Mensajes
 export async function selectContact(number) {
-    updateSelectedNumber(number); // Actualiza el contacto seleccionado en main.js
-    unreadContacts.delete(number); // Elimina de los no leídos
+    updateSelectedNumber(number); // Actualiza el número seleccionado en main.js
+    unreadContacts.delete(number); // Quita el contacto de no leídos
 
     document.querySelectorAll('.contact').forEach(contact => contact.classList.remove('active', 'unread'));
     
-    // Llamar a `showChat` para abrir la interfaz de chat
-    showChat(number);
-
-    // Marcar mensajes como leídos
-    await markMessagesAsRead(number);
-
-    // Cargar mensajes
-    loadMessages(number);
+    showChat(number); // Abre el chat
+    await markMessagesAsRead(number); // Marcar mensajes como leídos solo para este chat
+    loadMessages(number); // Cargar mensajes solo para el número seleccionado
 }

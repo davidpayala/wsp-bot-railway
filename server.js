@@ -104,14 +104,35 @@ app.post('/receive-whatsapp', async (req, res) => {
  * dirección (entrante/saliente) y el estado (leído o no leído). */
 
  app.get('/get-messages', async (req, res) => {
+    const { number } = req.query;
+
     try {
-        // Obtener los mensajes y el estado del chat de cada contacto
-        const [messages] = await db.execute(`
-            SELECT m.number, m.message, m.timestamp, m.direction, cs.estado
-            FROM messages AS m
-            LEFT JOIN chat_status AS cs ON m.number = cs.number
-            ORDER BY m.timestamp DESC
-        `);
+        let query;
+        let params;
+
+        // Si se proporciona un número, filtrar solo los mensajes de ese número
+        if (number) {
+            query = `
+                SELECT m.number, m.message, m.timestamp, m.direction, cs.estado
+                FROM messages AS m
+                LEFT JOIN chat_status AS cs ON m.number = cs.number
+                WHERE m.number = ?
+                ORDER BY m.timestamp ASC
+            `;
+            params = [number];
+        } else {
+            // Si no hay número, obtener todos los mensajes
+            query = `
+                SELECT m.number, m.message, m.timestamp, m.direction, cs.estado
+                FROM messages AS m
+                LEFT JOIN chat_status AS cs ON m.number = cs.number
+                ORDER BY m.timestamp DESC
+            `;
+            params = [];
+        }
+
+        // Ejecutar la consulta con los parámetros adecuados
+        const [messages] = await db.execute(query, params);
 
         res.status(200).json(messages);
     } catch (error) {
@@ -119,6 +140,7 @@ app.post('/receive-whatsapp', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch messages' });
     }
 });
+
 
 // Ruta para enviar una respuesta manual a un mensaje de WhatsApp
 app.post('/send-response', async (req, res) => {

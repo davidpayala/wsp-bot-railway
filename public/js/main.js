@@ -43,17 +43,51 @@ function initializeApp() {
     // Mostrar el menú al cargar la página
     showMenu();
     loadContacts(); // Cargar lista inicial de contactos en la barra lateral
+    setupSendEvent(); // Configurar el evento de envío de mensajes
 
     document.getElementById('menuButton').addEventListener('click', showMenu);
     document.getElementById('newMessageButton').addEventListener('click', () => {
         // Aquí puedes agregar la función de nuevo mensaje más adelante
         alert('Nuevo mensaje no implementado todavía');
+    
+    
+    // Configurar un intervalo para verificar nuevos mensajes
+    setInterval(checkForNewMessages, 5000); // Verificar cada 5 segundos
     });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp(); // Asegúrate de que `initializeApp` solo se llama cuando el DOM está listo
 });
+
+async function checkForNewMessages() {
+    const selectedNumber = getSelectedNumber(); // Obtiene el contacto actual
+
+    if (!selectedNumber) {
+        return; // Si no hay un contacto seleccionado, no hace nada
+    }
+
+    try {
+        const response = await fetch(`/get-messages?number=${selectedNumber}`);
+        const messages = await response.json();
+
+        const messagesDiv = document.getElementById('messages');
+        if (messagesDiv && messages.length) {
+            messagesDiv.innerHTML = ''; // Limpiar mensajes actuales
+
+            messages.forEach(msg => {
+                const msgElement = document.createElement('div');
+                msgElement.classList.add('message', msg.direction === 'outgoing' ? 'outgoing' : 'incoming');
+                msgElement.innerHTML = `<p>${msg.message}</p><span class="time">${new Date(msg.timestamp).toLocaleTimeString()}</span>`;
+                messagesDiv.appendChild(msgElement);
+            });
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Desplazar al final
+        }
+    } catch (error) {
+        console.error("Error al verificar nuevos mensajes:", error);
+    }
+}
 
 
 // Ejecutar la función de inicialización cuando la página se cargue

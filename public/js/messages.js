@@ -1,6 +1,7 @@
 // Cargar mensajes para el contacto seleccionado
 export async function loadMessages(number) {
-    const response = await fetch('/get-messages');
+    // Hacer la solicitud al servidor con el número del contacto
+    const response = await fetch(`/get-messages?number=${number}`);
     const messages = await response.json();
     const messagesDiv = document.getElementById('messages');
 
@@ -12,13 +13,10 @@ export async function loadMessages(number) {
 
     messagesDiv.innerHTML = ''; // Limpiar mensajes actuales
 
-    const filteredMessages = messages
-        .filter(msg => msg.number === number)
-        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
+    // Ordenar los mensajes por fecha y agruparlos por día
     let lastDate = null;
 
-    filteredMessages.forEach(msg => {
+    messages.forEach(msg => {
         const messageDate = new Date(msg.timestamp).toLocaleDateString();
 
         if (messageDate !== lastDate) {
@@ -37,3 +35,4 @@ export async function loadMessages(number) {
 
     messagesDiv.scrollTop = messagesDiv.scrollHeight; // Desplazar al final
 }
+
