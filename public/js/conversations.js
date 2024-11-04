@@ -7,18 +7,17 @@ export const unreadContacts = new Set(); // Almacena los contactos con mensajes 
 export async function loadContacts() {
     const response = await fetch('/get-messages');
     const messages = await response.json();
+    const contactsContainer = document.getElementById('contacts-container');
+    contactsContainer.innerHTML = ''; // Limpiar solo la lista de contactos
 
-    console.log('Messages received:', messages); // Verificar los datos recibidos
     const contacts = Array.from(new Set(messages.map(msg => msg.number)));
-    const sidebar = document.getElementById('sidebar');
-    sidebar.innerHTML = '<h2>Chats</h2>'; // Limpiar contactos actuales
-
     contacts.forEach(contact => {
         const lastMessage = messages.find(msg => msg.number === contact);
         const hasUnread = lastMessage && lastMessage.estado === 'no_leido';
-        createContactElement(contact, sidebar, hasUnread);
+        createContactElement(contact, contactsContainer, hasUnread);
     });
 }
+
 
 // Crear un elemento de contacto en la barra lateral
 function createContactElement(contact, sidebar, hasUnread) {

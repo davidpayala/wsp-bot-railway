@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp-like Chat Interface</title>
+    <title>Chat Interface</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar para los números de teléfono -->
         <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button id="menuButton">☰</button>
+                <button id="newMessageButton">✉️</button>
+            </div>
             <h2>Chats</h2>
+            <div id="contacts-container"></div>
         </div>
 
-        <!-- Área de mensajes -->
-        <div class="chat-container">
-            <div id="messages" class="messages">Selecciona un contacto para ver los mensajes...</div>
-            <!-- Entrada para escribir un mensaje de respuesta -->
-            <div class="input-container">
-                <input type="text" id="response" placeholder="Escribe tu mensaje..." required>
-                <button id="sendButton" class="send-symbol">→</button>
-            </div>
+        <!-- Área de mensajes o menú -->
+        <div class="chat-container" id="chat-container">
+            <!-- Al inicio se mostrará el menú aquí -->
         </div>
     </div>
 

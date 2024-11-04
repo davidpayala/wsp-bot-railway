@@ -1,28 +1,43 @@
 import { loadContacts } from './conversations.js';
-import { updateUnreadMessages } from './utils.js';
 import { setupSendEvent } from './send.js';
 
-// Variable para el contacto seleccionado (inicialmente null)
-let selectedNumber = null;
-
-// Función para actualizar el contacto seleccionado
-export function updateSelectedNumber(number) {
-    selectedNumber = number;
+function showMenu() {
+    const chatContainer = document.getElementById('chat-container');
+    chatContainer.innerHTML = `
+        <div class="menu-icons">
+            <button id="newMessageMenuIcon">Nuevo mensaje ✉️</button>
+        </div>
+    `;
 }
 
-// Función para obtener el valor del contacto seleccionado
-export function getSelectedNumber() {
-    return selectedNumber;
+function showChat(number) {
+    const chatContainer = document.getElementById('chat-container');
+    chatContainer.innerHTML = `
+        <button id="closeChatButton">❌</button>
+        <div id="messages" class="messages">
+            <!-- Aquí se cargarán los mensajes -->
+        </div>
+        <div class="input-container">
+            <input type="text" id="response" placeholder="Escribe tu mensaje...">
+            <button id="sendButton">→</button>
+        </div>
+    `;
+    setupSendEvent(); // Configura el envío de mensajes
+    loadMessages(number); // Carga los mensajes del contacto
+    document.getElementById('closeChatButton').addEventListener('click', showMenu);
 }
 
-// Inicializar la aplicación
 function initializeApp() {
-    loadContacts(); // Cargar lista de contactos
-    setupSendEvent(); // Configura el evento para el envío de mensajes
+    // Mostrar el menú al cargar la página
+    showMenu();
+    loadContacts(); // Cargar lista inicial de contactos en la barra lateral
 
-    // Configura un intervalo para actualizar mensajes y contactos no leídos cada 5 segundos
-    setInterval(updateUnreadMessages, 5000);
+    document.getElementById('menuButton').addEventListener('click', showMenu);
+    document.getElementById('newMessageButton').addEventListener('click', () => {
+        // Aquí puedes agregar la función de nuevo mensaje más adelante
+        alert('Nuevo mensaje no implementado todavía');
+    });
 }
 
-// Ejecutar la función de inicialización cuando se cargue la página
+// Ejecutar la función de inicialización cuando la página se cargue
 window.onload = initializeApp;

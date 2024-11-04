@@ -76,8 +76,6 @@ app.post('/receive-whatsapp', async (req, res) => {
                                 'INSERT INTO messages (number, message, urlMedia, direction, timestamp) VALUES (?, ?, ?, ?, NOW())',
                                 [number, text, urlMedia, 'incoming']
                             );
-                            console.log(`Received message from ${number}: ${text}`);
-
                             // Actualizar o establecer el estado a "no_leido" en chat_status
                             await db.execute(
                                 `
