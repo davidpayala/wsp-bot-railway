@@ -1,5 +1,5 @@
 import { getSelectedNumber } from './main.js';
-
+import { markMessagesAsRead } from './conversations.js'; // Importa la función
 
 // Configura el evento para enviar mensajes y actualizar el estado a "leído" al escribir
 export function setupSendEvent() {
@@ -31,7 +31,6 @@ export function setupSendEvent() {
     document.getElementById('sendButton').addEventListener('click', sendMessage);
 }
 // Enviar el mensaje y actualizar el estado en función de la respuesta
-// Enviar el mensaje y actualizar el estado en función de la respuesta
 export async function sendMessage() {
     const responseText = document.getElementById('response').value;
     const selectedNumber = getSelectedNumber();
@@ -52,24 +51,18 @@ export async function sendMessage() {
     document.getElementById('response').value = ''; // Limpiar campo de entrada
 
     try {
-        // Intentar enviar el mensaje al servidor
         const res = await fetch('/send-response', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ number: selectedNumber, response: responseText })
         });
 
-        // Actualizar el estado del mensaje
         const statusElement = tempMessage.querySelector('.status');
         if (res.ok) {
-            // Si el mensaje se envió correctamente
+            // Actualizar el estado a "leído" en la base de datos
+            await markMessagesAsRead(selectedNumber); // Llama a `markMessagesAsRead`
             statusElement.textContent = '✔';
-        } else if (res.status === 401 || res.status === 403) {
-            // Si hay un problema de autenticación
-            statusElement.textContent = 'Error de autenticación';
-            showError("Error de autenticación: verifica el token de acceso.");
         } else {
-            // Otros errores
             statusElement.textContent = '✖';
             showError("Error al enviar el mensaje. Inténtalo nuevamente.");
         }
