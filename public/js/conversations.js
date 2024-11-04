@@ -1,6 +1,6 @@
 import { loadMessages } from './messages.js';
 import { updateSelectedNumber, showChat } from './main.js';
-
+    
 export const unreadContacts = new Set(); // Almacena los contactos con mensajes no leídos
 
 // Cargar los contactos y mostrarlos en la barra lateral

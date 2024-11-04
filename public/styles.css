@@ -230,3 +230,15 @@ body {
     padding: 10px;
     background-color: #ffffff;
 }
+
+
+.error-message {
+    background-color: #ffdddd;
+    color: #d8000c;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #d8000c;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+}

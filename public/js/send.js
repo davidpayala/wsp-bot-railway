@@ -31,6 +31,7 @@ export function setupSendEvent() {
     document.getElementById('sendButton').addEventListener('click', sendMessage);
 }
 // Enviar el mensaje y actualizar el estado en función de la respuesta
+// Enviar el mensaje y actualizar el estado en función de la respuesta
 export async function sendMessage() {
     const responseText = document.getElementById('response').value;
     const selectedNumber = getSelectedNumber();
@@ -50,14 +51,47 @@ export async function sendMessage() {
 
     document.getElementById('response').value = ''; // Limpiar campo de entrada
 
-    // Intentar enviar el mensaje al servidor
-    const res = await fetch('/send-response', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: selectedNumber, response: responseText })
-    });
+    try {
+        // Intentar enviar el mensaje al servidor
+        const res = await fetch('/send-response', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ number: selectedNumber, response: responseText })
+        });
 
-    // Actualizar el estado del mensaje
-    const statusElement = tempMessage.querySelector('.status');
-    statusElement.textContent = res.ok ? '✔' : '✖'; // Actualiza a check o X según el resultado
+        // Actualizar el estado del mensaje
+        const statusElement = tempMessage.querySelector('.status');
+        if (res.ok) {
+            // Si el mensaje se envió correctamente
+            statusElement.textContent = '✔';
+        } else if (res.status === 401 || res.status === 403) {
+            // Si hay un problema de autenticación
+            statusElement.textContent = 'Error de autenticación';
+            showError("Error de autenticación: verifica el token de acceso.");
+        } else {
+            // Otros errores
+            statusElement.textContent = '✖';
+            showError("Error al enviar el mensaje. Inténtalo nuevamente.");
+        }
+    } catch (error) {
+        console.error("Error al enviar el mensaje:", error);
+        const statusElement = tempMessage.querySelector('.status');
+        statusElement.textContent = 'Error de conexión';
+        showError("No se pudo conectar con el servidor. Verifica la conexión.");
+    }
+}
+
+// Función para mostrar mensajes de error en la interfaz
+function showError(message) {
+    const chatContainer = document.getElementById('chat-container');
+    const errorDiv = document.createElement('div');
+    errorDiv.classList.add('error-message');
+    errorDiv.textContent = message;
+
+    chatContainer.insertBefore(errorDiv, chatContainer.firstChild);
+
+    // Ocultar el mensaje después de unos segundos
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
 }
