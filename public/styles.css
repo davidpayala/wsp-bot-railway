@@ -242,3 +242,10 @@ body {
     font-size: 14px;
     text-align: center;
 }
+
+.received-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-top: 5px;
+}

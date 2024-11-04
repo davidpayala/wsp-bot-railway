@@ -83,8 +83,7 @@ app.post('/receive-whatsapp', async (req, res) => {
                         messages.forEach(async (message) => {
                             const number = message.from;
                             const text = message.text?.body || null;
-                            const urlMedia = message.image?.url || null;
-
+                            const urlMedia = message.image?.url || null; // URL de la imagen si existe
                             // Guardar el mensaje entrante en la base de datos
                             await db.execute(
                                 'INSERT INTO messages (number, message, urlMedia, direction, timestamp) VALUES (?, ?, ?, ?, NOW())',
