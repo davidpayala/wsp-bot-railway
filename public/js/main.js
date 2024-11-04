@@ -26,9 +26,17 @@ function showChat(number) {
     loadMessages(number); // Carga los mensajes del contacto
     document.getElementById('closeChatButton').addEventListener('click', showMenu);
 }
+
+let selectedNumber = null; // Variable para almacenar el contacto seleccionado
+
 export function updateSelectedNumber(number) {
     selectedNumber = number;
 }
+
+export function getSelectedNumber() {
+    return selectedNumber;
+}
+
 function initializeApp() {
     // Mostrar el menú al cargar la página
     showMenu();
