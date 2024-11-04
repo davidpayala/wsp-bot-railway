@@ -3,6 +3,13 @@ export async function loadMessages(number) {
     const response = await fetch('/get-messages');
     const messages = await response.json();
     const messagesDiv = document.getElementById('messages');
+
+    // Verificar si el contenedor de mensajes existe
+    if (!messagesDiv) {
+        console.error("El elemento con id 'messages' no se encontró en el DOM.");
+        return;
+    }
+
     messagesDiv.innerHTML = ''; // Limpiar mensajes actuales
 
     const filteredMessages = messages
